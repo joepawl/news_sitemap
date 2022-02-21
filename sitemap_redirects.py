@@ -1,7 +1,5 @@
-import json
 import requests
-from bs4 import BeautifulSoup
-from cs50 import SQL, get_int
+from cs50 import SQL
 
 db = SQL("sqlite:///sitemaps.db")
 competitors = ['nbc', 'cbs', 'fox', 'cnn', 'wapo']
