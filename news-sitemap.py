@@ -3,7 +3,6 @@ import requests
 from cs50 import SQL
 
 # TODO: Scrape the JSON (json-schema.py) and use that to populate modified field
-# TODO: Consider srapping db columns for year, etc. and creating function that parses modified
 
 def main():
     # Define dictionary of competitors and sitemap URLs
@@ -31,8 +30,6 @@ def main():
         # Read modifieds into a list and break them out into component integers
         modified = soup.find_all('publication_date')
         modified = [modified[x].get_text() for x in range(len(modified))]
-        # Use this as a function to break down timestamp string if needed
-
 
         # Put sitemap data into a list of dictionaries
         entries = []
@@ -55,27 +52,11 @@ def main():
                         if entry['title'] != exists['title']:
                             db.execute("UPDATE ? SET title = ?, titleChanges = ? WHERE url = ?",
                             comp, entry['title'], exists['titleChanges'] + 1, exists['url'])
-                            # Try creating a new db based on the url
-                            try:
-                                db.execute("CREATE TABLE ? (title TEXT, modified TEXT)",
-                                exists['url'])
-                                db.execute("INSERT INTO ? (title) VALUES(?)",
-                                exists['url'], exists['title'])
-                            except:
-                                pass
-                            db.execute("INSERT INTO ? (title) VALUES(?)",
-                            exists['url'], entry['title'])
-                        if entry['modified'] != exists['modified']:
-                            db.execute("UPDATE ? SET modified = ?, timestampUpdates = ? WHERE url = ?",
-                            comp, entry['modified'], exists['timestampUpdates'] + 1, exists['url'])
-                            # Try creating a new db based on the url
-                            try:
-                                db.execute("CREATE TABLE ? (title TEXT, modified TEXT)",
-                                exists['url'])
-                                db.execute("INSERT INTO ? (modified) VALUES(?)",
-                                exists['url'], exists['modified'])
-                            except:
-                                pass
+                            db.execute("INSERT INTO titleChanges (url, oldTitle, newTitle) VALUES(?, ?, ?)",
+                            exists['url'], exists['title'], entry['title'])
+                        if entry['timestamp'] != exists['timestamp']:
+                            db.execute("UPDATE ? SET timestamp = ?, timestampUpdates = ? WHERE url = ?",
+                            comp, entry['timestamp'], exists['timestampUpdates'] + 1, exists['url'])                            
 
 
 def processTime(timestamp):
